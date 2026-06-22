@@ -7,4 +7,5 @@ route = Blueprint("api_v2", __name__)
 
 route.route("/healthCheck", methods=["GET"])(healthContr.health_check)
 route.route("/products", methods=["GET", "POST"])(productContr.get_product)
+route.route("/products/<int:product_id>", methods=["GET"])(productContr.get_product_by_id)
 # route.route("/users", methods=["GET", "POST"])(userConrtoller.get_user) 

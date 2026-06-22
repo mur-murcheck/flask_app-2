@@ -9,3 +9,18 @@ def get_product():
         "message": "Products retrieved successfully",
         "items": products
     }), 200
+
+def get_product_by_id(product_id):
+    found_product = product.get_product_by_id(product_id)
+
+    if not found_product:
+        return jsonify({
+            "success": False,
+            "message": "Product not found"
+        }), 404
+
+    return jsonify({
+        "success": True,
+        "message": "Product retrieved successfully",
+        "item": found_product
+    }), 200
