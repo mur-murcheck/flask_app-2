@@ -35,3 +35,23 @@ def create_product(name, price, description, stock):
     cursor.close()
 
     return new_product_id
+
+def update_product(product_id, name, price, description, stock):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        """
+        UPDATE products
+        SET 
+            name = %s,
+            price = %s,
+            description = %s,
+            stock = %s
+        WHERE id = %s
+        """,
+        (name, price, description, stock, product_id)
+    )
+    db.commit()
+    cursor.close()
+
+    return get_product_by_id(product_id)

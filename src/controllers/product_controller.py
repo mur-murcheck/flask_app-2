@@ -47,3 +47,26 @@ def create_product():
         "message": "Product created successfully",
         "item": created_product
     }), 201
+
+
+def update_product(product_id):
+    input_data = request.json
+
+    name = input_data.get("name")
+    price = input_data.get("price")
+    description = input_data.get("description")
+    stock = input_data.get("stock")
+
+    updated_product = product.update_product(
+        product_id,
+        name,
+        price,
+        description,
+        stock
+    )
+
+    return jsonify({
+        "success": True,
+        "message": "Product updated successfully",
+        "item": updated_product
+    }),200
