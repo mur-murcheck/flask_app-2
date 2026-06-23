@@ -180,8 +180,8 @@ Base URL：`http://localhost:8080/api/v2`
 | ---- | ------------------------------- | ------------ |
 | GET  | `/healthCheck`                  | 健康檢查     |
 | GET  | `/products/list`                     | 列出產品     |
-| GET  | `/products/<product_id>`        | 取得單一產品 |
-| POST | `/products`                     | 新增產品     |
+| GET  | `/products/search-by-id/<product_id>`        | 取得單一產品 |
+| POST | `/products/create`                     | 新增產品     |
 | POST | `/products/<product_id>`        | 更新產品     |
 | POST | `/products/<product_id>/delete` | 刪除產品     |
 | GET  | `/users`                        | 列出用戶     |

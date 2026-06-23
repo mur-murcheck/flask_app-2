@@ -2,28 +2,7 @@ from flask import request #to read body/JSON from Postman
 from src.models import product # it is the Model; controller uses it to ask for data from SQL
 from src.functions.response import success_response, error_response # unified responses
 
-# def create_product():
-#     input_data = request.json
 
-#     name = input_data.get("name")
-#     price = input_data.get("price")
-#     description = input_data.get("description")
-#     stock = input_data.get("stock")
-
-#     if not name or price is None:
-#         return jsonify({
-#             "success": False,``
-#             "message": "Name and price are required"
-#         }), 400
-    
-#     new_product_id = product.create_product(name=name, description=description, stock=stock, price=price)
-#     created_product = product.get_product_by_id(new_product_id)
-
-#     return jsonify({
-#         "success": True,
-#         "message": "Product created successfully",
-#         "item": created_product
-#     }), 201
 
 
 # def update_product(product_id):
@@ -115,7 +94,7 @@ def get_product_by_id(product_id):
             message="Product not found",
             status_code=400
         )
-
+    # if found product using the unified success response
     return success_response(
         data=found_product,
         message="Product retrieved successfully",
@@ -165,11 +144,7 @@ def get_product_by_id(product_id):
         #         for item in goods_list:
         #             if item["price"] <= price:
         #                 result.append(item)
-    # if found product using the unified success response
-    return success_response(
-        data=found_product,
-        message=""
-    )
+
             # return jsonify(result)
 
             # return jsonify({
@@ -177,4 +152,33 @@ def get_product_by_id(product_id):
             #     "message": "Price format must be '>= value' or '<= value'"
             # })
 
-    return jsonify(goods_list)
+    # return jsonify(goods_list)
+
+def create_product():
+    input_data = request.json
+
+    name = input_data.get("name")
+    price = input_data.get("price")
+    description = input_data.get("description")
+    stock = input_data.get("stock")
+
+    if not name:
+        return error_response(
+            message="Name is required",
+            status_code=400
+        )
+
+    if price is None:
+        return error_response(
+            message="Price is required",
+            status_code=400
+        )
+    
+    new_product_id = product.create_product(name=name, description=description, stock=stock, price=price)
+    created_product = product.get_product_by_id(new_product_id)
+
+    return success_response(
+        data=created_product,
+        message="Product created successfully",
+        status_code=201
+    )

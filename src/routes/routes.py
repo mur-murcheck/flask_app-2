@@ -9,7 +9,7 @@ route = Blueprint("api_v2", __name__)
 route.route("/healthCheck", methods=["GET"])(healthContr.health_check)
 route.route("/products/list", methods=["GET"])(productContr.get_products)
 route.route("/products/search-by-id/<int:product_id>", methods=["GET"])(productContr.get_product_by_id)
-# route.route("/products/create", methods=["POST"])(productContr.create_product)
+route.route("/products/create", methods=["POST"])(productContr.create_product)
 # route.route("/products/update-by-id/<int:product_id>", methods=["POST"])(productContr.update_product)
 
 # # route.route("/users", methods=["GET", "POST"])(userConrtoller.get_user) 
