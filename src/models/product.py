@@ -37,6 +37,20 @@ def create_product(name, price, description, stock):
     return new_product_id
 
 def update_product(product_id, name, price, description, stock):
+    product_before_update = get_product_by_id(product_id)
+
+    if name is None:
+        name = product_before_update["name"]
+
+    if price is None:
+        price = product_before_update["price"]
+
+    if description is None:
+        description = product_before_update["description"]
+
+    if stock is None:
+        stock = product_before_update["stock"]
+    
     db = get_db()
     cursor = db.cursor()
     cursor.execute(
