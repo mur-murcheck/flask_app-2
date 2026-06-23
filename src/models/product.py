@@ -69,3 +69,21 @@ def update_product(product_id, name, price, description, stock):
     cursor.close()
 
     return get_product_by_id(product_id)
+
+
+def delete_product(product_id):
+    desired_product = get_product_by_id(product_id)
+
+    if not desired_product:
+        return False
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "DELETE FROM products WHERE id = %s",
+        (product_id,) 
+    )
+    db.commit()
+    cursor.close()
+
+    return True

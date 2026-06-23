@@ -171,7 +171,7 @@ def update_product(product_id):
             message="Name is required",
             status_code=400
         )
-        
+
     if price is None:
         return error_response(
             message="Price is required",
@@ -189,5 +189,20 @@ def update_product(product_id):
     return success_response(
         data=updated_product,
         message="Product updated successfully",
+        status_code=200
+    )
+
+
+def delete_product(product_id):
+    result = product.delete_product(product_id)
+
+    if not result:
+        return error_response(
+            message="Product not found",
+            status_code=404
+        )
+
+    return success_response(
+        message="Product deleted successfully",
         status_code=200
     )
