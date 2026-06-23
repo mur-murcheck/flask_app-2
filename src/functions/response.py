@@ -1,5 +1,6 @@
 from flask import jsonify
 
+# utility functions (helper)
 # gonna be used in controllers to return a success response 
 # with data and message in json format with status code 200
 def success_response(data=None, message="Success", status_code=200):
