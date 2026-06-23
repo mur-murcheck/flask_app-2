@@ -2,39 +2,6 @@ from flask import request #to read body/JSON from Postman
 from src.models import product # it is the Model; controller uses it to ask for data from SQL
 from src.functions.response import success_response, error_response # unified responses
 
-def get_product():
-    # ask model to get all products from MySQL
-    products = product.get_all_products()
-
-    # return products using the unified success response format
-    return success_response(
-        data=products, 
-        message="Products retrieved successfully", 
-        status_code=200
-    )
-
-# def get_product_by_id(product_id):
-#     # get one products from MySQL by product_id
-#     found_product = product.get_product_by_id(product_id)
-
-#     # if product does not exist, return 404 error
-#     if not found_product:
-#     #     return jsonify({
-#     #         "success": False,
-#     #         "message": "Product not found"
-#     #     }), 404
-#         return error_response(
-#             message="Product not found",
-#             status_code=404
-#         )
-
-
-#     return jsonify({
-#         "success": True,
-#         "message": "Product retrieved successfully",
-#         "item": found_product
-#     }), 200
-
 # def create_product():
 #     input_data = request.json
 
@@ -45,7 +12,7 @@ def get_product():
 
 #     if not name or price is None:
 #         return jsonify({
-#             "success": False,
+#             "success": False,``
 #             "message": "Name and price are required"
 #         }), 400
     
@@ -124,19 +91,36 @@ def get_products():
 
         #     return jsonify(result)
 
-        # if product_id:
-        #     if not isinstance(product_id, int):
-        #         return jsonify({
-        #             "success": False,
-        #             "message": "Product ID must be integer"
-        #         })
+def get_product_by_id(product_id):
+    # if product_id:
+    #     if not isinstance(product_id, int):
+    #         return jsonify({
+    #             "success": False,
+    #             "message": "Product ID must be integer"
+    #         })
 
-        #     result = []
-        #     for item in goods_list:
-        #         if item["product_id"] == product_id:
-        #             result.append(item)
+    #     result = []
+    #     for item in goods_list:
+    #         if item["product_id"] == product_id:
+    #             result.append(item)
 
-        #     return jsonify(result)
+    #     return jsonify(result)    
+
+    # get one products from MySQL by product_id
+    found_product = product.get_product_by_id(product_id)
+
+    # if product does not exist, return 400 error
+    if not found_product:
+        return error_response(
+            message="Product not found",
+            status_code=400
+        )
+
+    return success_response(
+        data=found_product,
+        message="Product retrieved successfully",
+        status_code=200
+    )
 
         # if price:
         #     if not isinstance(price, str):
