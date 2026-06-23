@@ -3,12 +3,15 @@ from src.functions.response import success_response, error_response
 from src.models import member
 
 
-
+# def add_member():
 def register():
-  param = request.json
-  name = param.get("name")
-  phone = param.get("phone")
-  address = param.get("address")
+    # 
+  inputData = request.json
+  print("input: ", inputData)
+
+  name = inputData.get("name")
+  phone = inputData.get("phone")
+  address = inputData.get("address")
 
   if not name:
       # return jsonify({
@@ -86,17 +89,9 @@ def register():
 
   # carts[member_id] = []
 
-  result = {
-      "success": True,
-      "message": "Order information added successfully",
-      "member_id": member_id
-  }
-
-  return success_response(data=result)
-  # why not like this? 
-  # return success_responce(
-  #   data = {"member_id": member_id}, 
-  #   message = "Order information added successfully")
+  return success_response(
+    data={"member_id": member_id}, 
+    message="Order information added successfully")
 
 
 def get_member():

@@ -7,85 +7,190 @@ def get_product():
     products = product.get_all_products()
 
     # return products using the unified success response format
-    # return jsonify({
-    #     "success": True,
-    #     "message": "Products retrieved successfully",
-    #     "items": products
-    # }), 200
     return success_response(
         data=products, 
         message="Products retrieved successfully", 
         status_code=200
     )
 
-def get_product_by_id(product_id):
-    # get one products from MySQL by product_id
-    found_product = product.get_product_by_id(product_id)
+# def get_product_by_id(product_id):
+#     # get one products from MySQL by product_id
+#     found_product = product.get_product_by_id(product_id)
 
-    # if product does not exist, return 404 error
-    if not found_product:
-    #     return jsonify({
-    #         "success": False,
-    #         "message": "Product not found"
-    #     }), 404
-        return error_response(
-            message="Product not found",
-            status_code=404
-        )
+#     # if product does not exist, return 404 error
+#     if not found_product:
+#     #     return jsonify({
+#     #         "success": False,
+#     #         "message": "Product not found"
+#     #     }), 404
+#         return error_response(
+#             message="Product not found",
+#             status_code=404
+#         )
+
+
+#     return jsonify({
+#         "success": True,
+#         "message": "Product retrieved successfully",
+#         "item": found_product
+#     }), 200
+
+# def create_product():
+#     input_data = request.json
+
+#     name = input_data.get("name")
+#     price = input_data.get("price")
+#     description = input_data.get("description")
+#     stock = input_data.get("stock")
+
+#     if not name or price is None:
+#         return jsonify({
+#             "success": False,
+#             "message": "Name and price are required"
+#         }), 400
+    
+#     new_product_id = product.create_product(name=name, description=description, stock=stock, price=price)
+#     created_product = product.get_product_by_id(new_product_id)
+
+#     return jsonify({
+#         "success": True,
+#         "message": "Product created successfully",
+#         "item": created_product
+#     }), 201
+
+
+# def update_product(product_id):
+#     input_data = request.json
+
+#     name = input_data.get("name")
+#     price = input_data.get("price")
+#     description = input_data.get("description")
+#     stock = input_data.get("stock")
+
+#     updated_product = product.update_product(
+#         product_id,
+#         name,
+#         price,
+#         description,
+#         stock
+#     )
+
+#     return jsonify({
+#         "success": True,
+#         "message": "Product updated successfully",
+#         "item": updated_product
+#     }),200
+
+# @app.route("/showGoods", methods=["GET", "POST"])
+# def show_goods():
+def get_products():
+    # ask model to get all products from MySQL
+    products = product.get_all_products()
+    # goods_list = []
+
+    # for product_id in goods:
+    #     item = goods[product_id]
+    #     goods_list.append({
+    #         "product_id": product_id,
+    #         "name": item["name"],
+    #         "price": item["price"]
+    #     })
+    return success_response(
+        data=products, 
+        message="Products retrieved successfully", 
+        status_code=200
+    )
+
+    # if request.method == "POST":
+    #     inputData = request.json
+    #     name = inputData.get("name")
+    #     product_id = inputData.get("product_id")
+    #     price = inputData.get("price")
+
+    #     if not inputData:
+    #         return jsonify(goods_list)
+
+        # if name:
+        #     if not isinstance(name, str):
+        #         return jsonify({
+        #             "success": False,
+        #             "message": "Name must be string"
+        #         })
+
+        #     result = []
+        #     for item in goods_list:
+        #         if name in item["name"]:
+        #             result.append(item)
+
+        #     return jsonify(result)
+
+        # if product_id:
+        #     if not isinstance(product_id, int):
+        #         return jsonify({
+        #             "success": False,
+        #             "message": "Product ID must be integer"
+        #         })
+
+        #     result = []
+        #     for item in goods_list:
+        #         if item["product_id"] == product_id:
+        #             result.append(item)
+
+        #     return jsonify(result)
+
+        # if price:
+        #     if not isinstance(price, str):
+        #         return jsonify({
+        #             "success": False,
+        #             "message": "Price format must be '>= value' or '<= value'"
+        #         })
+
+        #     split_data = price.split(" ", 2)
+        #     if len(split_data) != 2:
+        #         return jsonify({
+        #             "success": False,
+        #             "message": "Price format must be '>= value' or '<= value'"
+        #         })
+
+        #     result = []
+        #     operator = split_data[0]
+        #     price = split_data[1]
+
+        #     if not price:
+        #         return jsonify({
+        #             "success": False,
+        #             "message": "Price must not be empty"
+        #         })
+
+        #     try:
+        #         price = int(price)
+        #     except ValueError:
+        #         return jsonify({
+        #             "success": False,
+        #             "message": "Price must be integer"
+        #         })
+
+        #     if operator == ">=":
+        #         for item in goods_list:
+        #             if item["price"] >= price:
+        #                 result.append(item)
+
+        #         return jsonify(result)
+
+        #     elif operator == "<=":
+        #         for item in goods_list:
+        #             if item["price"] <= price:
+        #                 result.append(item)
     # if found product using the unified success response
     return success_response(
         data=found_product,
         message=""
     )
+            # return jsonify(result)
 
-    return jsonify({
-        "success": True,
-        "message": "Product retrieved successfully",
-        "item": found_product
-    }), 200
+            # return jsonify({
+            #     "success": False,
+            #     "message": "Price format must be '>= value' or '<= value'"
+            # })
 
-def create_product():
-    input_data = request.json
-
-    name = input_data.get("name")
-    price = input_data.get("price")
-    description = input_data.get("description")
-    stock = input_data.get("stock")
-
-    if not name or price is None:
-        return jsonify({
-            "success": False,
-            "message": "Name and price are required"
-        }), 400
-    
-    new_product_id = product.create_product(name=name, description=description, stock=stock, price=price)
-    created_product = product.get_product_by_id(new_product_id)
-
-    return jsonify({
-        "success": True,
-        "message": "Product created successfully",
-        "item": created_product
-    }), 201
-
-
-def update_product(product_id):
-    input_data = request.json
-
-    name = input_data.get("name")
-    price = input_data.get("price")
-    description = input_data.get("description")
-    stock = input_data.get("stock")
-
-    updated_product = product.update_product(
-        product_id,
-        name,
-        price,
-        description,
-        stock
-    )
-
-    return jsonify({
-        "success": True,
-        "message": "Product updated successfully",
-        "item": updated_product
-    }),200
+    return jsonify(goods_list)

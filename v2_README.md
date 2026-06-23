@@ -179,7 +179,7 @@ Base URL：`http://localhost:8080/api/v2`
 | 方法 | 路徑                            | 說明         |
 | ---- | ------------------------------- | ------------ |
 | GET  | `/healthCheck`                  | 健康檢查     |
-| GET  | `/products`                     | 列出產品     |
+| GET  | `/products/list`                     | 列出產品     |
 | GET  | `/products/<product_id>`        | 取得單一產品 |
 | POST | `/products`                     | 新增產品     |
 | POST | `/products/<product_id>`        | 更新產品     |
