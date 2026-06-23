@@ -2,31 +2,6 @@ from flask import request #to read body/JSON from Postman
 from src.models import product # it is the Model; controller uses it to ask for data from SQL
 from src.functions.response import success_response, error_response # unified responses
 
-
-
-
-# def update_product(product_id):
-#     input_data = request.json
-
-#     name = input_data.get("name")
-#     price = input_data.get("price")
-#     description = input_data.get("description")
-#     stock = input_data.get("stock")
-
-#     updated_product = product.update_product(
-#         product_id,
-#         name,
-#         price,
-#         description,
-#         stock
-#     )
-
-#     return jsonify({
-#         "success": True,
-#         "message": "Product updated successfully",
-#         "item": updated_product
-#     }),200
-
 # @app.route("/showGoods", methods=["GET", "POST"])
 # def show_goods():
 def get_products():
@@ -181,4 +156,38 @@ def create_product():
         data=created_product,
         message="Product created successfully",
         status_code=201
+    )
+
+def update_product(product_id):
+    input_data = request.json
+
+    name = input_data.get("name")
+    price = input_data.get("price")
+    description = input_data.get("description")
+    stock = input_data.get("stock")
+
+    if not name:
+        return error_response(
+            message="Name is required",
+            status_code=400
+        )
+        
+    if price is None:
+        return error_response(
+            message="Price is required",
+            status_code=400
+        )
+
+    updated_product = product.update_product(
+        product_id,
+        name,
+        price,
+        description,
+        stock
+    )
+
+    return success_response(
+        data=updated_product,
+        message="Product updated successfully",
+        status_code=200
     )
