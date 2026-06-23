@@ -166,15 +166,9 @@ def update_product(product_id):
     description = input_data.get("description")
     stock = input_data.get("stock")
 
-    if not name:
+    if name == "":
         return error_response(
             message="Name is required",
-            status_code=400
-        )
-
-    if price is None:
-        return error_response(
-            message="Price is required",
             status_code=400
         )
 
@@ -185,6 +179,12 @@ def update_product(product_id):
         description,
         stock
     )
+
+    if updated_product is None:
+        return error_response(
+            message="Product not found",
+            status_code=400
+        )
 
     return success_response(
         data=updated_product,

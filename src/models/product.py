@@ -39,6 +39,9 @@ def create_product(name, price, description, stock):
 def update_product(product_id, name, price, description, stock):
     product_before_update = get_product_by_id(product_id)
 
+    if not product_before_update:
+        return None
+
     if name is None:
         name = product_before_update["name"]
 
