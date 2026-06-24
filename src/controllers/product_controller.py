@@ -148,6 +148,15 @@ def create_product():
             message="Price is required",
             status_code=400
         )
+
+    if price < 0:
+        return error_response(
+            message="Price cannot be negative",
+            status_code=400
+        )
+
+    if stock is None:
+        stock = 0
     
     new_product_id = product.create_product(name=name, description=description, stock=stock, price=price)
     created_product = product.get_product_by_id(new_product_id)
