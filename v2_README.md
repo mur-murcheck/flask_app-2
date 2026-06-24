@@ -184,9 +184,9 @@ Base URL：`http://localhost:8080/api/v2`
 | POST | `/products/create`                     | 新增產品     |
 | POST | `/products/update-by-id/<product_id>`        | 更新產品     |
 | POST | `/products/delete/<product_id>/` | 刪除產品     |
-| GET  | `/users`                        | 列出用戶     |
-| GET  | `/users/<user_id>`              | 取得單一用戶 |
-| POST | `/users`                        | 新增用戶     |
+| GET  | `/users/list`                        | 列出用戶     |
+| GET  | `/users/search-by-id/<user_id>`              | 取得單一用戶 |
+| POST | `/users/create`                        | 新增用戶     |
 | POST | `/users/<user_id>`              | 更新用戶     |
 | POST | `/users/<user_id>/delete`       | 刪除用戶     |
 

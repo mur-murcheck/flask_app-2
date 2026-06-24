@@ -138,43 +138,27 @@ def create_user():
 
 # @app.route('/showMembers', methods=['GET', 'POST'])
 # def show_members():
-def get_users():
+
     # if request.method == 'POST':
-    # name = inputData.get('name')
-    # member_id = inputData.get('member_id')
+        # inputData = request.json
+        # name = inputData.get('name')
+        # member_id = inputData.get('member_id')
 
     # if not inputData:
         #return jsonify(members)
-    # ask model to get all users from MySQL
-    users = user.get_all_users()
+
     # if name is not None and not isinstance(name, str):
         # return jsonify({
         #     "success": False,
         #     "message": "Name must be string"
         # })        
-        # return error_response(
-        #     message="Name must be string", 
-        #     status_code=400
-        # )
 
     # if member_id is not None and not isinstance(member_id, str):
         # return jsonify({
         #     "success": False,
         #     "message": "Member ID must be string"
         # })
-    return success_response(
-        data=users,
-        message="Users retrieved successfully",
-        status_code=200
-    )
 
-
-def get_user_by_id(user_id):
-    inputData = request.json
-    user_id = inputData.get("user_id")
-
-    if not inputData:
-        return user.get_all_users()
     # if name:
     #     result = {}
     #     for member_id in members:
@@ -184,11 +168,7 @@ def get_user_by_id(user_id):
     #             result[member_id] = member
 
     #     return jsonify(result)
-    if user_id is not None and not isinstance(user_id, str):
-        return error_response(
-            message="User ID must be string",
-            status_code=400
-        )
+
     # if member_id:
     #     if member_id in members:
     #         return jsonify({
@@ -196,11 +176,30 @@ def get_user_by_id(user_id):
     #         })
     #     return jsonify({})
 
+# user ID comes from route /users/search-by-id/<user_id>
+def get_user_by_id(user_id):
     found_user = user.get_user_by_id(user_id)
 
-    # return jsonify(members)
+    # if model returns None, it means user does not exist
+    if not found_user:
+        return error_response(
+            message="User not found",
+            status_code=400
+        )
+    # return found user using unified response helper
     return success_response(
         data=found_user,
         message="User retrieved successfully",
+        status_code=200
+    )
+
+    # return jsonify(members)
+def get_users():
+    # ask model to get all users from MySQL
+    users = user.get_all_users()
+
+    return success_response(
+        data=users,
+        message="Users retrieved successfully",
         status_code=200
     )
