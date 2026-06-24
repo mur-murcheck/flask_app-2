@@ -211,14 +211,17 @@ def update_product(product_id):
 # V1 does not have delete product logic
 # v2 adds delete product API based on CRUD requirements
 def delete_product(product_id):
+    # ask model to delete model product by id
     result = product.delete_product(product_id)
 
+    # if model returns False/None, product was not found
     if not result:
         return error_response(
             message="Product not found",
             status_code=404
         )
 
+    # return success response after product was deleted
     return success_response(
         message="Product deleted successfully",
         status_code=200

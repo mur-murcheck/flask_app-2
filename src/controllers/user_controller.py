@@ -245,13 +245,17 @@ def update_user(user_id):
 # V1 does not have delete member logic
 # v2 adds delete user API based on CRUD requirements
 def delete_user(user_id):
+    # ask model to delete user by id
     result = user.delete_user(user_id)
 
+    # if model returns False/None, user was not found
     if not result:
         return error_response(
             message="User not found",
             status_code=404
         )
+
+    # return success response after user was deleted
     return success_response(
         data=result,
         message="User deleted successfully",
