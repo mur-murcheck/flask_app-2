@@ -22,44 +22,8 @@ def get_products():
         status_code=200
     )
 
-    # if request.method == "POST":
-    #     inputData = request.json
-    #     name = inputData.get("name")
-    #     product_id = inputData.get("product_id")
-    #     price = inputData.get("price")
-
-    #     if not inputData:
-    #         return jsonify(goods_list)
-
-        # if name:
-        #     if not isinstance(name, str):
-        #         return jsonify({
-        #             "success": False,
-        #             "message": "Name must be string"
-        #         })
-
-        #     result = []
-        #     for item in goods_list:
-        #         if name in item["name"]:
-        #             result.append(item)
-
-        #     return jsonify(result)
-
 def get_product_by_id(product_id):
-    # if product_id:
-    #     if not isinstance(product_id, int):
-    #         return jsonify({
-    #             "success": False,
-    #             "message": "Product ID must be integer"
-    #         })
-
-    #     result = []
-    #     for item in goods_list:
-    #         if item["product_id"] == product_id:
-    #             result.append(item)
-
-    #     return jsonify(result)    
-
+    # search by product_id
     # get one products from MySQL by product_id
     found_product = product.get_product_by_id(product_id)
 
@@ -76,7 +40,63 @@ def get_product_by_id(product_id):
         status_code=200
     )
 
+
+def search_products():
+    # if request.method == "POST":
+    #     inputData = request.json
+
+    # get search conditions from request body
+    inputData = request.json
+
+
+    #     name = inputData.get("name")
+    #     product_id = inputData.get("product_id")
+    #     price = inputData.get("price")
+    product_id = inputData.get("product_id")
+    name = inputData.get("name")
+    price = inputData.get("price")
+    #     if not inputData:
+    #         return jsonify(goods_list)
+
+    # search products by name
+    if name:
+        found_product = product.get_product_by_name(name)
+        # if name:
+        #     if not isinstance(name, str):
+        #         return jsonify({
+        #             "success": False,
+        #             "message": "Name must be string"
+        #         })
+
+        #     result = []
+        #     for item in goods_list:
+        #         if name in item["name"]:
+        #             result.append(item)
+
+        #     return jsonify(result)
+        return success_response(
+            data=found_product,
+            message="Product found successfully",
+            status_code=200
+        )
+
+    # if product_id:
+    #     if not isinstance(product_id, int):
+    #         return jsonify({
+    #             "success": False,
+    #             "message": "Product ID must be integer"
+    #         })
+
+    #     result = []
+    #     for item in goods_list:
+    #         if item["product_id"] == product_id:
+    #             result.append(item)
+
+    #     return jsonify(result)    
+        
+        # search product by price
         # if price:
+    if price:
         #     if not isinstance(price, str):
         #         return jsonify({
         #             "success": False,
@@ -84,6 +104,7 @@ def get_product_by_id(product_id):
         #         })
 
         #     split_data = price.split(" ", 2)
+        split_data = price.split(" ", 1)
         #     if len(split_data) != 2:
         #         return jsonify({
         #             "success": False,
@@ -92,7 +113,9 @@ def get_product_by_id(product_id):
 
         #     result = []
         #     operator = split_data[0]
+        operator = split_data[0]
         #     price = split_data[1]
+        price_value = split_data[1]
 
         #     if not price:
         #         return jsonify({
@@ -112,22 +135,42 @@ def get_product_by_id(product_id):
         #         for item in goods_list:
         #             if item["price"] >= price:
         #                 result.append(item)
-
+        if operator == ">=":
+            products = product.get_product_by_min_price(price_value)
         #         return jsonify(result)
-
+            return success_response(
+                data=products,
+                message="Products retrieved successfully",
+                status_code=200
+            )
         #     elif operator == "<=":
         #         for item in goods_list:
         #             if item["price"] <= price:
         #                 result.append(item)
-
+        if operator == "<=":
+            products = product.get_product_by_max_price(price_value)
             # return jsonify(result)
-
+            return success_response(
+                data=products,
+                message="Products retrieved successfully",
+                status_code=200
+            )
             # return jsonify({
             #     "success": False,
             #     "message": "Price format must be '>= value' or '<= value'"
             # })
+        return error_response(
+            message="Invalid price operator",
+            status_code=400
+        )
 
+    # if no search condition is provided, return error_response
     # return jsonify(goods_list)
+    return error_response(
+        message="No search condition is provided",
+        status_code=200
+    )
+
 
 def create_product():
     input_data = request.json
@@ -166,6 +209,7 @@ def create_product():
         message="Product created successfully",
         status_code=201
     )
+
 
 def update_product(product_id):
     input_data = request.json

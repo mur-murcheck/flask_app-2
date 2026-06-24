@@ -1,3 +1,4 @@
+from re import search
 from flask import Blueprint
 
 from src.controllers import health_controller as healthContr
@@ -8,7 +9,8 @@ route = Blueprint("api_v2", __name__)
 
 route.route("/healthCheck", methods=["GET"])(healthContr.health_check)
 route.route("/products/list", methods=["GET"])(productContr.get_products)
-route.route("/products/search-by-id/<int:product_id>", methods=["GET"])(productContr.get_product_by_id)
+route.route("/products/get-by-id/<int:product_id>", methods=["GET"])(productContr.get_product_by_id)
+route.route("/products/search", methods=["GET"])(productContr.search_products)
 route.route("/products/create", methods=["POST"])(productContr.create_product)
 route.route("/products/update-by-id/<int:product_id>", methods=["POST"])(productContr.update_product)
 route.route("/products/delete/<int:product_id>", methods=["POST"])(productContr.delete_product)

@@ -22,6 +22,42 @@ def get_product_by_id(product_id):
 
     return product
 
+def get_product_by_name(name):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT * FROM products WHERE name LIKE %s",
+        (f"%{name}%",)
+    )
+    found_products = cursor.fetchall()
+    cursor.close()
+
+    return found_products
+
+def get_product_by_min_price(price):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM products WHERE price >= %s",
+    (price,)
+    )
+    found_products = cursor.fetchall()
+    cursor.close()
+
+    return found_products
+
+def get_product_by_max_price(price):
+    db = get_db()
+    cursor = db.cursor()
+    print(price)
+    print(type(price))
+    cursor.execute("SELECT * FROM products WHERE price <= %s",
+    (price,)
+    )
+    found_products = cursor.fetchall()
+    cursor.close()
+
+    return found_products
+
 
 def create_product(name, price, description, stock):
     db = get_db()
