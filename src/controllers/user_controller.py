@@ -230,3 +230,20 @@ def update_user(user_id):
         message="User updated successfully",
         status_code=200
     )
+
+
+# V1 does not have delete member logic
+# v2 adds delete user API based on CRUD requirements
+def delete_user(user_id):
+    result = user.delete_user(user_id)
+
+    if not result:
+        error_response(
+            message="User not found",
+            status_code=404
+        )
+    return success_response(
+        data=result,
+        message="User deleted successfully",
+        status_code=200
+    )

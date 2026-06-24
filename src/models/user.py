@@ -84,3 +84,21 @@ def update_user(user_id, name, email, phone):
     cursor.close()
 
     return get_user_by_id(user_id)
+
+
+def delete_user(user_id):
+    desired_user = get_user_by_id(user_id)
+
+    if not desired_user:
+        return False
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "DELETE FROM users WHERE id = %s",
+        (user_id,)
+    )
+    db.commit()
+    cursor.close()
+
+    return True
