@@ -36,31 +36,31 @@ def create_user():
             status_code=400
         )
 
-    if not phone:
+    # phone is not required from specifications v2_README
+    # if not phone:
         # return jsonify({
         #     "success": False,
         #     "message": "Phone is required"
         # })
-        return error_response(
-            message="Phone is required",
-            status_code=400
-        )
 
-    if not isinstance(phone, str):
+    # if not isinstance(phone, str):
         # return jsonify({
         #     "success": False,
         #     "message": "Phone must be string"
         # })
+
+    # if not phone.isdigit() or len(phone) != 10:
+    #     return jsonify({
+    #         "success": False,
+    #         "message": "Phone must contain 10 digits"
+    #     })
+    if phone is not None and not isinstance(phone, str):
         return error_response(
             message="Phone must be string",
             status_code=400
         )
 
-    if not phone.isdigit() or len(phone) != 10:
-    #     return jsonify({
-    #         "success": False,
-    #         "message": "Phone must contain 10 digits"
-    #     })
+    if phone is not None and (not phone.isdigit() or len(phone) != 10):
         return error_response(
             message="Phone must contain 10 digits",
             status_code=400
@@ -88,6 +88,13 @@ def create_user():
             status_code=400
         )
 
+
+    if "@" not in email:
+        return error_response(
+            message="Invalid email format",
+            status_code=400
+        )
+
     # for existing_member_id, member in members.items():
 
     #     if member["name"] == name and member["phone"] == phone:
@@ -104,10 +111,13 @@ def create_user():
     #             "message": "Phone is used already"
     #         })
 
-    user_exists = user.check_user_exists(phone=phone,
-                name=name, email=email)
+    user_exists = user.check_user_exists(email=email)
+
     if user_exists:
-        return error_response(message="User already exists", status_code=400)
+        return error_response(
+            message="User already exists", 
+            status_code=409
+        )
 
     # user_id = str(uuid.uuid4())
 

@@ -39,12 +39,12 @@ def create_user(name, email, phone):
     return new_user_id
 
 
-def check_user_exists(phone: str, name: str, email: str): 
+def check_user_exists(email: str): 
     db = get_db()
     cursor = db.cursor()
     cursor.execute(
-        "SELECT * FROM users WHERE phone = %s AND name = %s OR email = %s LIMIT 1",
-        (phone,name,email)
+        "SELECT * FROM users WHERE email = %s LIMIT 1",
+        (email,)
     )
     existing_user = cursor.fetchone()
     cursor.close()
