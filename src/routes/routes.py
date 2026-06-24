@@ -16,5 +16,5 @@ route.route("/products/delete/<int:product_id>", methods=["POST"])(productContr.
 route.route("/users/create", methods=["POST"])(userContr.create_user)
 route.route("/users/list", methods=["GET"])(userContr.get_users)
 route.route("/users/search-by-id/<int:user_id>", methods=["GET"])(userContr.get_user_by_id)
-route.route("users/update-by-id/<int:user_id>", methods=["POST"])(userContr.update_user)
-route.route("users/delete/<int:user_id>", methods=["POST"])(userContr.delete_user)
+route.route("/users/update-by-id/<int:user_id>", methods=["POST"])(userContr.update_user)
+route.route("/users/delete/<int:user_id>", methods=["POST"])(userContr.delete_user)

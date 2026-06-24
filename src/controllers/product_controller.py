@@ -63,11 +63,11 @@ def get_product_by_id(product_id):
     # get one products from MySQL by product_id
     found_product = product.get_product_by_id(product_id)
 
-    # if product does not exist, return 400 error
+    # if product does not exist, return 404 error
     if not found_product:
         return error_response(
             message="Product not found",
-            status_code=400
+            status_code=404
         )
     # if found product using the unified success response
     return success_response(

@@ -238,7 +238,7 @@ def delete_user(user_id):
     result = user.delete_user(user_id)
 
     if not result:
-        error_response(
+        return error_response(
             message="User not found",
             status_code=404
         )
