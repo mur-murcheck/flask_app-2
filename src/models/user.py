@@ -50,3 +50,37 @@ def check_user_exists(phone: str, name: str, email: str):
     cursor.close()
 
     return existing_user
+
+
+def update_user(user_id, name, email, phone):
+    user_before_update = get_user_by_id(user_id)
+
+    if not user_before_update:
+        return None
+
+    if name is None:
+        name = user_before_update["name"]
+
+    if email is None:
+        email = user_before_update["email"]
+
+    if phone is None:
+        phone = user_before_update["phone"]
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        """
+        UPDATE users
+        SET
+            name = %s,
+            email = %s,
+            phone = %s
+        WHERE id = %s
+        """,
+        (name, email, phone, user_id)
+    )
+    db.commit()
+    cursor.close()
+
+    return get_user_by_id(user_id)

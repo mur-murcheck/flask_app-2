@@ -184,7 +184,7 @@ def get_user_by_id(user_id):
     if not found_user:
         return error_response(
             message="User not found",
-            status_code=400
+            status_code=404
         )
     # return found user using unified response helper
     return success_response(
@@ -201,5 +201,32 @@ def get_users():
     return success_response(
         data=users,
         message="Users retrieved successfully",
+        status_code=200
+    )
+
+
+def update_user(user_id):
+    inputData = request.json
+
+    name = inputData.get("name")
+    email = inputData.get("email")
+    phone = inputData.get("phone")
+
+    updated_user = user.update_user(
+        user_id,
+        name,
+        email,
+        phone
+    )
+
+    if updated_user is None:
+        return error_response(
+            message="User not found",
+            status_code=404
+        )
+
+    return success_response(
+        data=updated_user,
+        message="User updated successfully",
         status_code=200
     )

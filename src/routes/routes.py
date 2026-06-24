@@ -13,7 +13,7 @@ route.route("/products/create", methods=["POST"])(productContr.create_product)
 route.route("/products/update-by-id/<int:product_id>", methods=["POST"])(productContr.update_product)
 route.route("/products/delete/<int:product_id>", methods=["POST"])(productContr.delete_product)
 
-# route.route("/users", methods=["GET", "POST"])(userConrtoller.get_user) 
 route.route("/users/create", methods=["POST"])(userContr.create_user)
 route.route("/users/list", methods=["GET"])(userContr.get_users)
 route.route("/users/search-by-id/<int:user_id>", methods=["GET"])(userContr.get_user_by_id)
+route.route("users/update-by-id/<int:user_id>", methods=["POST"])(userContr.update_user)

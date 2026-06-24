@@ -187,7 +187,7 @@ Base URL：`http://localhost:8080/api/v2`
 | GET  | `/users/list`                        | 列出用戶     |
 | GET  | `/users/search-by-id/<user_id>`              | 取得單一用戶 |
 | POST | `/users/create`                        | 新增用戶     |
-| POST | `/users/<user_id>`              | 更新用戶     |
+| POST | `/users/update-by-id/<user_id>`              | 更新用戶     |
 | POST | `/users/<user_id>/delete`       | 刪除用戶     |
 
 ---
