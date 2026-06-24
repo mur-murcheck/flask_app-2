@@ -1,4 +1,6 @@
-from flask import jsonify, request
+# from flask import Flask, jsonify, request
+# import uuid
+from flask import request
 from src.functions.response import success_response, error_response
 from src.models import user
 
@@ -134,40 +136,71 @@ def create_user():
     # })
 
 
-def get_user():
+# @app.route('/showMembers', methods=['GET', 'POST'])
+# def show_members():
+def get_users():
     # if request.method == 'POST':
-    # inputData = request.json
-    param = request.json
-    name = param.get('name')
-    member_id = param.get('member_id')
+    # name = inputData.get('name')
+    # member_id = inputData.get('member_id')
 
-    if not param:
-        return jsonify(members)
+    # if not inputData:
+        #return jsonify(members)
+    # ask model to get all users from MySQL
+    users = user.get_all_users()
+    # if name is not None and not isinstance(name, str):
+        # return jsonify({
+        #     "success": False,
+        #     "message": "Name must be string"
+        # })        
+        # return error_response(
+        #     message="Name must be string", 
+        #     status_code=400
+        # )
 
-    if name is not None and not isinstance(name, str):
-        return error_response(message="Name is required", status_code=400)
+    # if member_id is not None and not isinstance(member_id, str):
+        # return jsonify({
+        #     "success": False,
+        #     "message": "Member ID must be string"
+        # })
+    return success_response(
+        data=users,
+        message="Users retrieved successfully",
+        status_code=200
+    )
 
-    if member_id is not None and not isinstance(member_id, str):
-        return jsonify({
-            "success": False,
-            "message": "Member ID must be string"
-        })
 
-    if name:
-        result = {}
-        for member_id in members:
-            member = members[member_id]
+def get_user_by_id(user_id):
+    inputData = request.json
+    user_id = inputData.get("user_id")
 
-            if name in member["name"]:
-                result[member_id] = member
+    if not inputData:
+        return user.get_all_users()
+    # if name:
+    #     result = {}
+    #     for member_id in members:
+    #         member = members[member_id]
 
-        return jsonify(result)
+    #         if name in member["name"]:
+    #             result[member_id] = member
 
-    if member_id:
-        if member_id in members:
-            return jsonify({
-                member_id: members[member_id]
-            })
-        return jsonify({})
+    #     return jsonify(result)
+    if user_id is not None and not isinstance(user_id, str):
+        return error_response(
+            message="User ID must be string",
+            status_code=400
+        )
+    # if member_id:
+    #     if member_id in members:
+    #         return jsonify({
+    #             member_id: members[member_id]
+    #         })
+    #     return jsonify({})
 
-    return jsonify(members)
+    found_user = user.get_user_by_id(user_id)
+
+    # return jsonify(members)
+    return success_response(
+        data=found_user,
+        message="User retrieved successfully",
+        status_code=200
+    )

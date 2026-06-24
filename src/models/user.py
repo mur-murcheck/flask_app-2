@@ -10,6 +10,18 @@ def get_all_users():
     return users
 
 
+def get_user_by_id(user_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = %s",
+        (user_id,)
+    )
+    user = cursor.fetchone()
+    cursor.close()
+
+    return user
+
+
 def create_user(name, email, phone):
     db = get_db()
     cursor = db.cursor()
@@ -38,15 +50,3 @@ def check_user_exists(phone: str, name: str, email: str):
     cursor.close()
 
     return existing_user
-
-
-def get_user_by_id(user_id):
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM users WHERE id = %s",
-        (user_id,)
-    )
-    user = cursor.fetchone()
-    cursor.close()
-
-    return user
