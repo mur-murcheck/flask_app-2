@@ -183,7 +183,7 @@ def update_product(product_id):
     if updated_product is None:
         return error_response(
             message="Product not found",
-            status_code=400
+            status_code=404
         )
 
     return success_response(
@@ -193,6 +193,8 @@ def update_product(product_id):
     )
 
 
+# V1 does not have delete product logic
+# v2 adds delete product API based on CRUD requirements
 def delete_product(product_id):
     result = product.delete_product(product_id)
 
