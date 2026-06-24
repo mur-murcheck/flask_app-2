@@ -181,6 +181,12 @@ def update_product(product_id):
             status_code=400
         )
 
+    if price is not None and price < 0:
+        return error_response(
+            message="Price cannot be negative",
+            status_code=400
+        )
+
     updated_product = product.update_product(
         product_id,
         name,
