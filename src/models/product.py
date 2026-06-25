@@ -159,12 +159,13 @@ def delete_product(product_id):
     desired_product = get_product_by_id(product_id)
 
     # if product does not exist, return False to controller
+    # controller will convert this result to 404 error response
     if not desired_product:
         return False
 
     db = get_db()
     cursor = db.cursor()
-    # delete product by id
+    # delete product from products table by id
     cursor.execute(
         "DELETE FROM products WHERE id = %s",
         (product_id,) 
