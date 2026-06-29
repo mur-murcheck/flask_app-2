@@ -1,38 +1,80 @@
+# In V1, order data was stored in Python dictionaries: goods, members and carts
+# In V2, order data is stored permanently in MySQL tables: orders and order_items
+
 # import the halper function, responsible for opening, 
 # providing and safely closing a database connection 
 # for each HTTP request
 from src.models.database import get_db
 
+# V1 reference:
+# @app.route('/buy', methods=['POST'])
+# def buy():
+#     inputData = request.json
+#     product_id = inputData.get("product_id")
+#     quantity = inputData.get("quantity")
+#     member_id = inputData.get("member_id")
+#
+#     item = goods[product_id]
+#     total = item["price"] * quantity
+#     member_cart = carts[member_id]
+#
+#     for cart_item in member_cart:
+#         if cart_item["product_id"] == product_id:
+#             cart_item["quantity"] += quantity
+#             cart_item["total"] = cart_item["price"] * cart_item["quantity"]
+#
+# V2 change:
+# There is no temporary Python cart anymore.
+# The controller receives user_id and items from Postman,
+# then this model creates a permanent order in MySQL
 def create_order(user_id, items):
     # get database connection
     db = get_db()
     # create cursor - is the tool that sends SQL commands to MySQL
     cursor = db.cursor()
 
+    # Prepare total amount for the whole order
+    # It starts from 0 and will be increased by every item total
     total_amount = 0
+    # Count how many different product categories are included in this order
+    # Example: apple + orange = 2 categories
     total_categories = len(items)
+    # Create a temporary list for checked items.
+    # We do not insert data immediately, because first we must validate all products and stock
     prepared_items = []
 
     # check every product before creating the order
     for item in items:
+        # Get product_id from current item
         product_id = item["product_id"]
+        # Get quantity from current item
         quantity = item["quantity"]
 
+        # V1 used goods[product_id] to find a product in the goods dictionary
+        # V2 uses SELECT to find the product in MySQL
         cursor.execute("SELECT * FROM products WHERE ID = %s", (product_id,))
         
+        # fetchone() returns one product row if it exists, 
+        # otherwise it returns None
         product = cursor.fetchone()
 
+        # If product does not exist in MySQL, stop order creation
         if not product:
             cursor.close()
             return None, "Product does not exist"
 
+        # Check whether product stock is enough for requested quantity
         if product["stock"] < quantity:
             cursor.close()
             return None, "Not enough stock"
 
+        # Calculate item total: product price * quantity
         item_total = product["price"] * quantity
+        # Add this item total to full order total amount
         total_amount += item_total
 
+        # Save checked item data into prepared_items.
+        # product_name and price are copied into order_items to keep receipt history stable
         prepared_items.append({
             "product_id":product_id,
             "product_name": product["name"],
@@ -41,7 +83,8 @@ def create_order(user_id, items):
             "total": item_total
         })
 
-    # create main order record
+    # create main order record in orders table
+    # orders table stores general order information: user, total amount and category count
     cursor.execute(
         """
         INSERT INTO orders
@@ -51,10 +94,13 @@ def create_order(user_id, items):
         (user_id, total_amount, total_categories)
     )
 
+    # Get newly created order id from MySQL
+    # This id will be used to connect order_items to this order
     order_id = cursor.lastrowid
 
-    # save order items and reduce product stock for item in prepared_items
+    # save every checked product as one row in order_items table
     for item in prepared_items:
+        # insert one receipt item into order_items
         cursor.execute(
             """INSERT INTO order_items
             (order_id, product_id, product_name, price, quantity, total)
@@ -70,6 +116,7 @@ def create_order(user_id, items):
             )
         )
 
+        # reduce product stock after the item is added to the order
         cursor.execute(
             """
             UPDATE products
@@ -79,15 +126,48 @@ def create_order(user_id, items):
             (item["quantity"], item["product_id"])
         )
 
+    # save INSERT and UPDATE changes to MySQL.
     db.commit()
+    # close cursor after all SQL commands are finished
     cursor.close()
 
+    # return created receipt and no error message.
+    # controller will return this receipt to Postman.
     return get_order_receipt(order_id), None
 
 
+# V1 reference:
+# @app.route('/order', methods=['GET'])
+# def order():
+#     member_id = request.args.get("member_id")
+#     member = members[member_id]
+#     member_cart = carts[member_id]
+#
+#     total = 0
+#     for item in member_cart:
+#         total += item['total']
+#
+#     carts[member_id] = []
+#
+#     return jsonify({
+#         "success": True,
+#         "message": "Order created successfully",
+#         "customer": member,
+#         "item": member_cart,
+#         "total_amount": total,
+#         "total_categories": fruit_types,
+#         "member_id": member_id
+#     })
+#
+# V2 change:
+# Receipt is not built from carts dictionary anymore.
+# It is rebuilt from orders + order_items + users tables
 def get_order_receipt(order_id):
     db = get_db()
     cursor = db.cursor()
+    # select main order information and related user data.
+    # JOIN is used because orders table stores only user_id,
+    # while user name/email/phone are stored in users table
     cursor.execute(
         """
         SELECT
@@ -106,12 +186,15 @@ def get_order_receipt(order_id):
         (order_id,)
     )
 
+    # fetchone() returns one order receipt header, or None if order does not exist
     order = cursor.fetchone()
 
+    # if order does not exist, close cursor and return None to controller
     if not order:
         cursor.close()
         return None
 
+    # select all item rows that belong to this order
     cursor.execute(
         """SELECT
             product_id,
@@ -125,11 +208,17 @@ def get_order_receipt(order_id):
         (order_id,)
     )
     
+    # fetchall() returns a list of all receipt items
     items = cursor.fetchall()
 
+    # close cursor after reading all data
     cursor.close()
 
+    # add items list into the main order dictionary.
+    # final receipt contains order info + customer info + item list
     order["items"] = items
+
+    # return complete receipt to controller
     return order
 
 
