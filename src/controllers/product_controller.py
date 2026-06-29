@@ -27,28 +27,6 @@ def get_products():
     )
 
 
-def get_product_by_id(product_id):
-    # search by product_id
-    # ask model to find one products from MySQL by product_id
-    found_product = product.get_product_by_id(product_id)
-
-    # if model returns None, product was not found
-    # if product was not found, return 404 error
-    if not found_product:
-        return error_response(
-            message="Product not found",
-            status_code=404
-        )
-
-    # if found product using the unified success response
-    # and return found product
-    return success_response(
-        data=found_product,
-        message="Product retrieved successfully",
-        status_code=200
-    )
-
-
 def search_products():
     # if request.method == "POST":
     #     inputData = request.json
@@ -65,6 +43,7 @@ def search_products():
     # read possible search fields from request JSON
     name = inputData.get("name")
     price = inputData.get("price")
+    product_id = inputData.get("product_id")
     #     if not inputData:
     #         return jsonify(goods_list)
 
@@ -87,25 +66,32 @@ def search_products():
         #     return jsonify(result)
 
         # return all products that matched the name condition
-        return success_response(
-            data=found_product,
-            message="Product found successfully",
-            status_code=200
-        )
+
 
     # if product_id:
+    if product_id:
+        found_product = product.get_product_by_id(product_id)
     #     if not isinstance(product_id, int):
     #         return jsonify({
     #             "success": False,
     #             "message": "Product ID must be integer"
     #         })
-
+        if not found_product:
+            return error_response(
+                message="Product not found",
+                status_code=404
+            )
     #     result = []
     #     for item in goods_list:
     #         if item["product_id"] == product_id:
     #             result.append(item)
 
     #     return jsonify(result)    
+        return success_response(
+            data=found_product,
+            message="Product found successfully",
+            status_code=200
+        )
         
         # if price:
     # search product by price condition if price was provided

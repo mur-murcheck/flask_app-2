@@ -4,12 +4,12 @@ from flask import Blueprint
 from src.controllers import health_controller as healthContr
 from src.controllers import product_controller as productContr
 from src.controllers import user_controller as userContr
+from src.controllers import order_controller as orderContr
 
 route = Blueprint("api_v2", __name__)
 
 route.route("/healthCheck", methods=["GET"])(healthContr.health_check)
 route.route("/products/list", methods=["GET"])(productContr.get_products)
-route.route("/products/get-by-id/<int:product_id>", methods=["GET"])(productContr.get_product_by_id)
 route.route("/products/search", methods=["GET"])(productContr.search_products)
 route.route("/products/create", methods=["POST"])(productContr.create_product)
 route.route("/products/update-by-id/<int:product_id>", methods=["POST"])(productContr.update_product)
@@ -20,3 +20,7 @@ route.route("/users/list", methods=["GET"])(userContr.get_users)
 route.route("/users/search-by-id/<int:user_id>", methods=["GET"])(userContr.get_user_by_id)
 route.route("/users/update-by-id/<int:user_id>", methods=["POST"])(userContr.update_user)
 route.route("/users/delete/<int:user_id>", methods=["POST"])(userContr.delete_user)
+
+route.route("/orders/create", methods=["POST"])(orderContr.create_order)
+route.route("/orders/receipt/<int:order_id>", methods=["GET"])(orderContr.get_order_receipt)
+route.route("/orders/delete/<int:order_id>", methods=["POST"])(orderContr.delete_order)
