@@ -24,3 +24,4 @@ route.route("/users/delete/<int:user_id>", methods=["POST"])(userContr.delete_us
 route.route("/orders/create", methods=["POST"])(orderContr.create_order)
 route.route("/orders/receipt/<int:order_id>", methods=["GET"])(orderContr.get_order_receipt)
 route.route("/orders/delete/<int:order_id>", methods=["POST"])(orderContr.delete_order)
+route.route("/orders/purchase/<int:order_id>", methods=["POST"])(orderContr.purchase)

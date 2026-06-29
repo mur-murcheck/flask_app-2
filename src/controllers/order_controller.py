@@ -186,3 +186,27 @@ def delete_order(order_id):
         message="Order deleted successfully",
         status_code=200
     )
+
+
+def purchase(order_id):
+    existing_order = order.get_order_receipt(order_id)
+
+    if not existing_order:
+        return error_response(
+            message="Order does not exist",
+            status_code=404
+        )
+
+    if existing_order["paid"]:
+        return error_response(
+            message="Order is paid already",
+            status_code=400
+        )
+
+    purchased = order.purchase(order_id)
+
+    return success_response(
+        data=purchased,
+        message="Order paid successfully",
+        status_code=200
+    )

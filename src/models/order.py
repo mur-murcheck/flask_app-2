@@ -178,7 +178,8 @@ def get_order_receipt(order_id):
             users.phone,
             orders.total_amount,
             orders.total_categories,
-            orders.created_at
+            orders.created_at,
+            orders.paid
         FROM orders
         JOIN users ON orders.user_id = users.id
         WHERE orders.id = %s
@@ -226,9 +227,6 @@ def delete_order(order_id):
     # first check whether the order exists before deleting
     existing_order = get_order_receipt(order_id)
 
-    print(existing_order)
-    print(type(existing_order))
-
     # if order does not exist, return False to controller
     # controller will convert this result to 404 error response
     if not existing_order:
@@ -250,3 +248,17 @@ def delete_order(order_id):
     # return True to controller 
     # to indicate that order was deleted
     return True
+
+
+def purchase(order_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "UPDATE orders SET paid = 1 WHERE id = %s",
+        (order_id,)
+    )
+
+    db.commit()
+    cursor.close()
+
+    return get_order_receipt(order_id)
