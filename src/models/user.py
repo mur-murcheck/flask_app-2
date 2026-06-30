@@ -1,4 +1,5 @@
 from src.models.database import get_db
+import uuid
 
 def get_all_users():
     # get database connection from database model
@@ -34,17 +35,33 @@ def get_user_by_id(user_id):
     return user
 
 
+def get_user_by_auth_key(auth_key):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT * FROM users WHERE auth_key = %s",
+        (auth_key,)
+    )
+
+    found_user = cursor.fetchone()
+    cursor.close()
+
+    return found_user
+
+
 def create_user(name, email, phone, address):
+    auth_key = str(uuid.uuid4())
+
     db = get_db()
     cursor = db.cursor()
     # insert new user data into users table
     # id is not provided because it is autoincrement in MySQL
     cursor.execute(
         """
-        INSERT INTO users (name, email, phone, address) 
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO users (name, email, phone, address, auth_key) 
+        VALUES (%s, %s, %s, %s, %s)
         """,
-        (name, email, phone, address)
+        (name, email, phone, address, auth_key)
     )
     # save INSERT changes to MySQL
     db.commit()

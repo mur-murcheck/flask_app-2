@@ -52,7 +52,7 @@ def create_order(user_id, items):
 
         # V1 used goods[product_id] to find a product in the goods dictionary
         # V2 uses SELECT to find the product in MySQL
-        cursor.execute("SELECT * FROM products WHERE ID = %s", (product_id,))
+        cursor.execute("SELECT * FROM products WHERE id = %s", (product_id,))
         
         # fetchone() returns one product row if it exists, 
         # otherwise it returns None
@@ -133,7 +133,7 @@ def create_order(user_id, items):
 
     # return created receipt and no error message.
     # controller will return this receipt to Postman.
-    return get_order_receipt(order_id), None
+    return get_order_receipt(order_id, user_id), None
 
 
 # V1 reference:
@@ -162,7 +162,7 @@ def create_order(user_id, items):
 # V2 change:
 # Receipt is not built from carts dictionary anymore.
 # It is rebuilt from orders + order_items + users tables
-def get_order_receipt(order_id):
+def get_order_receipt(order_id, user_id):
     db = get_db()
     cursor = db.cursor()
     # select main order information and related user data.
@@ -176,6 +176,7 @@ def get_order_receipt(order_id):
             users.name AS user_name,
             users.email,
             users.phone,
+            users.address,
             orders.total_amount,
             orders.total_categories,
             orders.created_at,
@@ -183,8 +184,9 @@ def get_order_receipt(order_id):
         FROM orders
         JOIN users ON orders.user_id = users.id
         WHERE orders.id = %s
+        AND orders.user_id = %s
         """,
-        (order_id,)
+        (order_id, user_id)
     )
 
     # fetchone() returns one order receipt header, or None if order does not exist
@@ -223,9 +225,9 @@ def get_order_receipt(order_id):
     return order
 
 
-def delete_order(order_id):
+def delete_order(order_id, user_id):
     # first check whether the order exists before deleting
-    existing_order = get_order_receipt(order_id)
+    existing_order = get_order_receipt(order_id, user_id)
 
     # if order does not exist, return False to controller
     # controller will convert this result to 404 error response
@@ -236,8 +238,8 @@ def delete_order(order_id):
     cursor = db.cursor()
     # delete order from orders table by id
     cursor.execute(
-        "DELETE FROM orders WHERE id = %s",
-        (order_id,)
+        "DELETE FROM orders WHERE id = %s AND user_id = %s",
+        (order_id, user_id)
     )
 
     # save DELETE changes to MySQL

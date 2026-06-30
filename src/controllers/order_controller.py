@@ -1,4 +1,5 @@
-from flask import request #to read body/JSON from Postman
+from flask import request
+from pymysql import err #to read body/JSON from Postman
 from src.models import order, user # it is the Models; controller uses it to ask for data from SQL
 from src.functions.response import success_response, error_response # unified responses
 
@@ -26,8 +27,28 @@ def create_order():
     # Get JSON body sent from Postman
     inputData = request.json
 
-    # Read user_id from request body
-    user_id = inputData.get("user_id")
+    # read and auth key from request headers
+    auth_token = request.headers.get("X-Auth-Token")
+
+    # auth key is required
+    if not auth_token:
+        return error_response(
+            message="Auth key is required",
+            status_code=401
+        )
+
+    # find current user by auth key
+    current_user = user.get_user_by_auth_key(auth_token)
+
+    # auth key is invalid
+    if not current_user:
+        return error_response(
+            message="Invalid auth token",
+            status_code=401
+        )
+
+    user_id = current_user["id"]
+
     # Read items list from request body.
     # Expected format: [{"product_id": 1, "quantity": 2}, ...]
     items = inputData.get('items')
@@ -145,10 +166,31 @@ def create_order():
 # V2 change:
 # Receipt is retrieved by order_id from MySQL
 def get_order_receipt(order_id):
-    # Ask order model to get receipt by order_id
-    receipt = order.get_order_receipt(order_id)
+    # read and auth key from request headers
+    auth_token = request.headers.get("X-Auth-Token")
+
+    # auth key is required
+    if not auth_token:
+        return error_response(
+            message="Auth token is required",
+            status_code=401
+        )
+
+    # find current user by auth key
+    current_user = user.get_user_by_auth_key(auth_token)
+
+    # auth key is invalid
+    if not current_user:
+        return error_response(
+            message="Invalid auth token",
+            status_code=401
+        )
+    
+    # Ask order model to get receipt by order_id and token
+    receipt = order.get_order_receipt(order_id, current_user["id"])
 
     # If model returns None, order was not found
+    # order does not exist or does not belong to current user
     if not receipt:
         return error_response(
             message="Order not found",
@@ -171,10 +213,31 @@ def get_order_receipt(order_id):
 # V2 change:
 # Since orders are saved in MySQL, we add a delete endpoint.
 def delete_order(order_id):
+    # read and auth key from request headers
+    auth_token = request.headers.get("X-Auth-Token")
+
+    # Auth key is required
+    if not auth_token:
+        return error_response(
+            message="Auth key is required",
+            status_code=401
+        )
+
+    # find current user by auth key
+    current_user = user.get_user_by_auth_key(auth_token)
+
+    # auth key is invalid
+    if not current_user:
+        return error_response(
+            message="Invalid auth token",
+            status_code=401
+        )
+
     # Ask order model to delete order by id.
-    result = order.delete_order(order_id)
+    result = order.delete_order(order_id, current_user["id"])
 
     # If model returns False, order was not found
+    # order does not exist or does not belong to current user
     if not result:
         return error_response(
             message="Order not found",
