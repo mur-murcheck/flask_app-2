@@ -34,17 +34,17 @@ def get_user_by_id(user_id):
     return user
 
 
-def create_user(name, email, phone):
+def create_user(name, email, phone, address):
     db = get_db()
     cursor = db.cursor()
     # insert new user data into users table
     # id is not provided because it is autoincrement in MySQL
     cursor.execute(
         """
-        INSERT INTO users (name, email, phone) 
-        VALUES (%s, %s, %s)
+        INSERT INTO users (name, email, phone, address) 
+        VALUES (%s, %s, %s, %s)
         """,
-        (name, email, phone)
+        (name, email, phone, address)
     )
     # save INSERT changes to MySQL
     db.commit()
@@ -53,6 +53,7 @@ def create_user(name, email, phone):
     # close cursor after INSERT is done
     cursor.close()
 
+    # return newly created user data
     return new_user_id
 
 
@@ -91,6 +92,9 @@ def update_user(user_id, name, email, phone):
     # if phone was not provided in request, keep old phone
     if phone is None:
         phone = user_before_update["phone"]
+    # if address was not provided in request, keep old address
+    if address is None:
+        address = user_before_update["address"]
 
     db = get_db()
     cursor = db.cursor()
@@ -103,7 +107,8 @@ def update_user(user_id, name, email, phone):
         SET
             name = %s,
             email = %s,
-            phone = %s
+            phone = %s,
+            address = %s
         WHERE id = %s
         """,
         (name, email, phone, user_id)

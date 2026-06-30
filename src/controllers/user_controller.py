@@ -24,9 +24,9 @@ def create_user():
     # .get() returns value if key exists, otherwise returns None
     name = inputData.get("name")
     phone = inputData.get("phone")
+    address = inputData.get("address")
     # address = inputData.get("address")
-    # v1 used address field
-    # but v2_README uses email instead
+    # but v2_README uses email
     email = inputData.get("email")
 
     # validate required name field
@@ -93,30 +93,44 @@ def create_user():
             status_code=400
         )
 
-    # v1 required address, but v2 requires email instead
+    # validate required address field
     # if not address:
-    if not email:
+    if not address:
     #     return jsonify({
     #         "success": False,
     #         "message": "Address is required"
     #     })
         return error_response(
-            message="Email is required",
+            message="Address is required",
             status_code=400
         )
 
-    # v1 checked address type, v2 checks email type
+    # if address is provided, it must be string
     # if not isinstance(address, str):
-    if not isinstance(email, str):
+    if not isinstance(address, str):
     #     return jsonify({
     #         "success": False,
     #         "message": "Address must be string"
     #     })
         return error_response(
-            message="Email must be string",
+            message="Address must be string",
             status_code=400
         )
 
+    # validate required email field
+    if not email:
+        return error_response(
+            message="Email is required",
+            status_code=400
+        )   
+
+    # if email is provided, it must be string
+    if not isinstance(email, str):
+        return error_response(
+            message="Email must be string",
+            status_code=400
+        )
+        
     # validate email format
     # this is a simple check required by v2_README
     if "@" not in email:
@@ -163,7 +177,7 @@ def create_user():
     # }
 
     # v2 saves user data to db MySQL through model function
-    new_user_id = user.create_user(name, email, phone)
+    new_user_id = user.create_user(name, email, phone, address)
     # get new user data from MySQL by id
     # this allows response the real database record
     created_user = user.get_user_by_id(new_user_id)
@@ -272,6 +286,7 @@ def update_user(user_id):
     name = inputData.get("name")
     email = inputData.get("email")
     phone = inputData.get("phone")
+    address = inputData.get("address")
 
     # ask model to update user in MySQL
     # model will keep old values for fields that are None
@@ -279,7 +294,8 @@ def update_user(user_id):
         user_id,
         name,
         email,
-        phone
+        phone,
+        address
     )
 
     # if model returns None, user wasn't found
