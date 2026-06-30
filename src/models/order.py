@@ -33,12 +33,6 @@ def create_order(user_id, items):
     # create cursor - is the tool that sends SQL commands to MySQL
     cursor = db.cursor()
 
-    # Prepare total amount for the whole order
-    # It starts from 0 and will be increased by every item total
-    total_amount = 0
-    # Count how many different product categories are included in this order
-    # Example: apple + orange = 2 categories
-    total_categories = len(items)
     # Create a temporary list for checked items.
     # We do not insert data immediately, because first we must validate all products and stock
     prepared_items = []
@@ -68,11 +62,6 @@ def create_order(user_id, items):
             cursor.close()
             return None, "Not enough stock"
 
-        # Calculate item total: product price * quantity
-        item_total = product["price"] * quantity
-        # Add this item total to full order total amount
-        total_amount += item_total
-
         # Save checked item data into prepared_items.
         # product_name and price are copied into order_items to keep receipt history stable
         prepared_items.append({
@@ -80,18 +69,12 @@ def create_order(user_id, items):
             "product_name": product["name"],
             "price": product["price"],
             "quantity": quantity,
-            "total": item_total
         })
 
     # create main order record in orders table
-    # orders table stores general order information: user, total amount and category count
-    cursor.execute(
-        """
-        INSERT INTO orders
-        (user_id, total_amount, total_categories)
-        VALUES (%s, %s, %s)
-        """,
-        (user_id, total_amount, total_categories)
+    # orders table stores order information of the user
+    cursor.execute("INSERT INTO orders (user_id) VALUES (%s)",
+        (user_id,)
     )
 
     # Get newly created order id from MySQL
@@ -103,16 +86,15 @@ def create_order(user_id, items):
         # insert one receipt item into order_items
         cursor.execute(
             """INSERT INTO order_items
-            (order_id, product_id, product_name, price, quantity, total)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (order_id, product_id, product_name, price, quantity)
+            VALUES (%s, %s, %s, %s, %s)
             """,
             (
                 order_id,
                 item["product_id"],
                 item["product_name"],
                 item["price"],
-                item["quantity"],
-                item["total"]
+                item["quantity"]
             )
         )
 
@@ -177,8 +159,6 @@ def get_order_receipt(order_id, user_id):
             users.email,
             users.phone,
             users.address,
-            orders.total_amount,
-            orders.total_categories,
             orders.created_at,
             orders.paid
         FROM orders
@@ -203,8 +183,7 @@ def get_order_receipt(order_id, user_id):
             product_id,
             product_name,
             price,
-            quantity,
-            total
+            quantity
         FROM order_items
         WHERE order_id = %s
         """,
@@ -220,6 +199,16 @@ def get_order_receipt(order_id, user_id):
     # add items list into the main order dictionary.
     # final receipt contains order info + customer info + item list
     order["items"] = items
+
+    total_amount = 0
+    total_categories = 0
+    for item in items:
+        total_categories += 1
+        item["total"] = item["price"] * item["quantity"]
+        total_amount += item["total"]
+
+    order["total_amount"] = total_amount
+    order["total_categories"] = total_categories
 
     # return complete receipt to controller
     return order
