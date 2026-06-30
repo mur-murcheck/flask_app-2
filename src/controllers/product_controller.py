@@ -3,14 +3,22 @@ from src.models import product # it is the Model; controller uses it to ask for 
 from src.functions.response import success_response, error_response # unified responses; 
 # keep all API responses in the same format
 
+
+def get_products():
+# v1 
 # @app.route("/showGoods", methods=["GET", "POST"])
 # def show_goods():
-# get all products from MySQL through model and return ubified response
-def get_products():
-    # ask model to get all products from MySQL
-    products = product.get_all_products()
+
+# In v1 GET returned all goods
+# POST searched goods by name, product_id or price
+
+# v2 keeps the same business logic,
+# but data comes from MySQL through the product model
+
+    # v1 
     # goods_list = []
 
+    # v1 
     # for product_id in goods:
     #     item = goods[product_id]
     #     goods_list.append({
@@ -19,23 +27,16 @@ def get_products():
     #         "price": item["price"]
     #     })
 
-    # return product list with  unified success response helper
-    return success_response(
-        data=products, 
-        message="Products retrieved successfully", 
-        status_code=200
-    )
-
-
-def search_products():
+    # v1 
     # if request.method == "POST":
     #     inputData = request.json
+    inputData = request.json or {}
 
-    # get search conditions from request body
-    # in v2 search conditions still come from request JSON, 
+    # .get search conditions from request body.
+    # In v2 search conditions still come from request JSON, 
     # but actual searching is done by model/MySQL
-    inputData = request.json
-
+   
+    # v1
     #     name = inputData.get("name")
     #     product_id = inputData.get("product_id")
     #     price = inputData.get("price")
@@ -44,8 +45,23 @@ def search_products():
     name = inputData.get("name")
     price = inputData.get("price")
     product_id = inputData.get("product_id")
-    #     if not inputData:
-    #         return jsonify(goods_list)
+
+    # if request body is empty, return all products list
+
+    # v1 
+    # if not inputData:
+    if not inputData:
+        # ask model to get all products from MySQL
+        products = product.get_all_products()
+    #   v1 
+    #   return jsonify(goods_list)
+
+        # return product list with  unified success response helper
+        return success_response(
+            data=products, 
+            message="Products retrieved successfully", 
+            status_code=200
+        )
 
     # search products by partial name if name was provided
     if name:
@@ -66,7 +82,11 @@ def search_products():
         #     return jsonify(result)
 
         # return all products that matched the name condition
-
+        return success_response(
+            data=found_product,
+            message="Products retrieved successfully",
+            status_code=200
+        )
 
     # if product_id:
     if product_id:
