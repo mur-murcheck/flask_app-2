@@ -4,6 +4,27 @@ from src.models import order, user # it is the Models; controller uses it to ask
 from src.functions.response import success_response, error_response # unified responses
 
 
+def get_current_user_from_token():
+    # read and auth key from request headers
+    auth_token = request.headers.get("X-Auth-Token")
+
+    if not auth_token:
+        return None, error_response(
+            message="Auth token is required",
+            status_code=401
+        )
+
+    current_user = user.get_user_by_auth_key(auth_token)
+
+    if not current_user:
+        return None, error_response(
+            message="Invalid auth token",
+            status_code=401
+        )
+
+    return current_user, None
+
+    
 # V1 reference:
 # @app.route('/buy', methods=['POST'])
 # def buy():
@@ -27,8 +48,9 @@ def create_order():
     # Get JSON body sent from Postman
     inputData = request.json
 
-    # read and auth key from request headers
-    auth_token = request.headers.get("X-Auth-Token")
+    current_user, auth_error = get_current_user_from_token()
+    if auth_error:
+        return auth_error
 
     # auth key is required
     if not auth_token:

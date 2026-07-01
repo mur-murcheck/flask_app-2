@@ -92,7 +92,7 @@ def check_user_exists(email: str):
     return existing_user
 
 
-def update_user(user_id, name, email, phone):
+def update_user(user_id, name, email, phone, address):
     # first get current user data before update
     user_before_update = get_user_by_id(user_id)
 
@@ -128,7 +128,7 @@ def update_user(user_id, name, email, phone):
             address = %s
         WHERE id = %s
         """,
-        (name, email, phone, user_id)
+        (name, email, phone, address, user_id)
     )
     # save UPDATE changes to MySQL
     db.commit()
