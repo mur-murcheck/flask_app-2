@@ -1,5 +1,4 @@
-from flask import request
-from pymysql import err #to read body/JSON from Postman
+from flask import request #to read body/JSON from Postman
 from src.models import order, user # it is the Models; controller uses it to ask for data from SQL
 from src.functions.response import success_response, error_response # unified responses
 
