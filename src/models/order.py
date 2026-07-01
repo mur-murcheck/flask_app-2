@@ -253,3 +253,22 @@ def purchase(order_id):
     cursor.close()
 
     return get_order_receipt(order_id)
+
+
+def get_existing_order_id(auth_token):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        SELECT orders.id FROM orders
+        JOIN users ON orders.user_id = users.id
+        WHERE users.auth_key = %s AND paid = 0
+        """,
+        (auth_token,)
+    )
+    order = cursor.fetchone()
+    cursor.close()
+
+    if order:
+        return order["id"]
+
+    return None
