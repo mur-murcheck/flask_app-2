@@ -24,7 +24,7 @@ def get_current_user_from_token():
 
     return current_user, None
 
-    
+
 # V1 reference:
 # @app.route('/buy', methods=['POST'])
 # def buy():
@@ -43,52 +43,30 @@ def get_current_user_from_token():
 #
 # V2 change:
 # This API creates a real order in MySQL directly.
+# the user isn't taken from request body anymore
+# the user is detected by X-Auth-Token so one user can not create order for another user
 # It receives user_id and a list of items instead of one product at a time
 def create_order():
     # Get JSON body sent from Postman
-    inputData = request.json
+    inputData = request.json or {}
 
     current_user, auth_error = get_current_user_from_token()
     if auth_error:
         return auth_error
 
-    # auth key is required
-    if not auth_token:
-        return error_response(
-            message="Auth key is required",
-            status_code=401
-        )
-
-    # find current user by auth key
-    current_user = user.get_user_by_auth_key(auth_token)
-
-    # auth key is invalid
-    if not current_user:
-        return error_response(
-            message="Invalid auth token",
-            status_code=401
-        )
-
     user_id = current_user["id"]
+
+    # user cannot create another order while previous order is unpaid
+    unpaid_order_id = order.get_unpaid_order_by_user_id(user_id)
+    if unpaid_order_id:
+        return error_response(
+            message="Previous order is not paid yet",
+            status_code=400
+        )
 
     # Read items list from request body.
     # Expected format: [{"product_id": 1, "quantity": 2}, ...]
     items = inputData.get('items')
-
-    # Validate required user_id.
-    if not user_id:
-        return error_response(
-            message="User ID is required",
-            status_code=400
-        )
-
-    # Validate user_id type.
-    # It must be integer because users.id in MySQL is INT.
-    if not isinstance(user_id, int):
-        return error_response(
-            message="User Id must be integer",
-            status_code=400
-        )
 
     # Validate required items
     if not items:
@@ -103,16 +81,6 @@ def create_order():
         return error_response(
             message="Items must be list",
             status_code=400
-        )
-
-    # Ask user model to check whether user exists in MySQL.
-    found_user = user.get_user_by_id(user_id)
-
-    # If user does not exist, order cannot be created.
-    if not found_user:
-        return error_response(
-            message="User does not exist",
-            status_code=404
         )
 
     # Validate every item before calling order model.
@@ -188,25 +156,10 @@ def create_order():
 # V2 change:
 # Receipt is retrieved by order_id from MySQL
 def get_order_receipt(order_id):
-    # read and auth key from request headers
-    auth_token = request.headers.get("X-Auth-Token")
-
-    # auth key is required
-    if not auth_token:
-        return error_response(
-            message="Auth token is required",
-            status_code=401
-        )
-
     # find current user by auth key
-    current_user = user.get_user_by_auth_key(auth_token)
-
-    # auth key is invalid
-    if not current_user:
-        return error_response(
-            message="Invalid auth token",
-            status_code=401
-        )
+    current_user, auth_error = get_current_user_from_token()
+    if auth_error:
+        return auth_error
     
     # Ask order model to get receipt by order_id and token
     receipt = order.get_order_receipt(order_id, current_user["id"])
@@ -235,25 +188,9 @@ def get_order_receipt(order_id):
 # V2 change:
 # Since orders are saved in MySQL, we add a delete endpoint.
 def delete_order(order_id):
-    # read and auth key from request headers
-    auth_token = request.headers.get("X-Auth-Token")
-
-    # Auth key is required
-    if not auth_token:
-        return error_response(
-            message="Auth key is required",
-            status_code=401
-        )
-
-    # find current user by auth key
-    current_user = user.get_user_by_auth_key(auth_token)
-
-    # auth key is invalid
-    if not current_user:
-        return error_response(
-            message="Invalid auth token",
-            status_code=401
-        )
+    current_user, auth_error = get_current_user_from_token()
+    if auth_error:
+        return auth_error
 
     # Ask order model to delete order by id.
     result = order.delete_order(order_id, current_user["id"])
@@ -272,26 +209,29 @@ def delete_order(order_id):
         status_code=200
     )
 
-
+# purchase means "pay for order"
+# only owner of the order can pay for it
+# paid order cannot be paid twice
 def purchase(order_id):
-    existing_order = order.get_order_receipt(order_id)
+    current_user, auth_error = get_current_user_from_token()
+    if auth_error:
+        return auth_error
 
-    if not existing_order:
+    purchased_receipt, error_message = order.purchase(order_id, current_user["id"])
+
+    if error_message == "Order does not exist":
         return error_response(
-            message="Order does not exist",
+            message=error_message,
             status_code=404
         )
 
-    if existing_order["paid"]:
+    if error_message:
         return error_response(
-            message="Order is paid already",
+            message=error_message,
             status_code=400
         )
-
-    purchased = order.purchase(order_id)
-
     return success_response(
-        data=purchased,
+        data=purchased_receipt,
         message="Order paid successfully",
         status_code=200
     )
