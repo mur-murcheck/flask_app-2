@@ -11,7 +11,7 @@ def get_order_item_by_id(item_id):
     cursor.execute(
         """SELECT
             id,
-            order_id
+            order_id,
             product_id,
             product_name,
             price,
@@ -46,8 +46,8 @@ def get_order_item_by_id_for_user(item_id, user_id):
             order_items.quantity
         FROM order_items
         JOIN orders ON order_items.order_id = orders.id
-        WHERE order_items.id = %
-        AND orders.user_id = %
+        WHERE order_items.id = %s
+        AND orders.user_id = %s
         AND orders.paid = 0
         """,
         (item_id, user_id)
@@ -121,7 +121,7 @@ def create_order_item(order_id, item):
 
 def update_order_item(item_id, item, user_id):
     # get item only if it belongs to current user's unpaid order
-    existing_item = get_order_item_by_id(item_id, user_id)
+    existing_item = get_order_item_by_id_for_user(item_id, user_id)
 
     if not existing_item:
         return None, "Order item does not exist"

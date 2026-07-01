@@ -4,7 +4,7 @@ from src.functions.response import success_response, error_response # unified re
 
 
 def get_current_user_from_token():
-    auth_token = request.headers.get("X-Auth_Token")
+    auth_token = request.headers.get("X-Auth-Token")
 
     if not auth_token:
         return None, error_response(
